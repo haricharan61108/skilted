@@ -1,0 +1,24 @@
+import { Router } from "express";
+import { signup,login, checkEmail } from "../admin-controllers/auth";
+import { adminMiddleware } from "../middleware/adminMiddleware";
+import { getJobById, setJobs } from "../admin-controllers/jobs";
+import {enableBidding} from "../admin-controllers/jobs";
+import { getBidsByJobId } from "../admin-controllers/jobs";
+import { getUsersBySkill, getUsersForAdmin, searchUsersForAdmin} from "../common-controllers/getUsersBySkill";
+import { limiter } from "../middleware/rateLimiter";
+
+const router=Router();
+
+
+router.post("/signup",signup);
+router.post("/login",login);
+router.post("/add-job",adminMiddleware,limiter,setJobs);
+router.post("/enable-bidding/:jobId",adminMiddleware,enableBidding);
+router.get("/get-bids/:jobId",adminMiddleware,getBidsByJobId);
+router.get("/search-skills",adminMiddleware,getUsersBySkill);
+router.get("/get-job/:id",adminMiddleware,getJobById);
+router.get("/get-users",adminMiddleware,getUsersForAdmin);
+router.get("/users/search",adminMiddleware,searchUsersForAdmin);
+router.get("/check-email",checkEmail)
+
+export default router;

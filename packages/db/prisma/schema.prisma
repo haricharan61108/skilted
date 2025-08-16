@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Bid {
+  id        Int      @id @default(autoincrement())
+  jobId     Int
+  userId    Int
+  bidAmount Float
+  createdAt DateTime @default(now())
+
+  job       Job      @relation(fields: [jobId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Admin {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  jobs     Job[]
+}
+
+model Job {
+  id                  Int       @id @default(autoincrement())
+  title               String
+  description         String
+  image               String?
+  baseBiddingPrice    Float
+  isBiddingEnabled    Boolean
+  technologies        String[]
+  minimumRequirements String[]
+  category            String?     
+  deadline            DateTime?
+  experienceLevel     String?  
+  bids                Bid[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  adminId             Int
+  admin               Admin     @relation(fields: [adminId], references: [id])
+}
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  password String
+  bids     Bid[]
+  profile  UserProfile?
+}
+
+model UserProfile {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  name            String
+  profilePicture  String?
+  title           String?
+  bio             String?
+  skills          String[]
+  languages       String[]
+  education       String?
+  certifications  String[]
+  workHistory     String?
+  availability    Boolean  @default(true)
+  socialLinks     Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
