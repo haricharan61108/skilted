@@ -16,7 +16,7 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import api from "@/config"
 
-
+const BACKEND_URL=process.env.NEXT_PUBLIC_BACKEND_URL;
 
 
 export default function UserSignup() {
@@ -36,8 +36,7 @@ export default function UserSignup() {
 
     setIsLoading(true)
     try {
-        console.log("Hitting the backend");
-        const { data } = await axios.post("http://localhost:3000/api/user/signup", formData);
+        const {data}=await api.post("/api/user/signup",formData);
         console.log("Account Created! 🎉",data);
       toast.success("Account Created! 🎉", {
         description: "Welcome to Skilted! Redirecting to your dashboard...",

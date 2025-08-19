@@ -23,8 +23,9 @@ import {
 import { toast } from "sonner"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import api from "@/config"
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"
+
 
 export default function UserLogin() {
   const [showPassword, setShowPassword] = useState(false)
@@ -62,13 +63,8 @@ export default function UserLogin() {
 
     setIsLoading(true)
     try {
-      const { data } = await axios.post("/api/user/login", formData, {
-        withCredentials: true,
-        baseURL: BACKEND_URL,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+      const {data}=await api.post("/api/user/login",formData);
+      console.log("Login Successful!",data);
 
       // Show success toast
       toast.success("Welcome Back! 🎉", {
@@ -81,7 +77,7 @@ export default function UserLogin() {
 
       // Redirect after a short delay to show the success message
       setTimeout(() => {
-        router.push("/user/dashboard")
+        router.push("/")
       }, 1500)
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || error.message || "Login failed. Please try again."

@@ -9,12 +9,15 @@ import userRouter from "./User/routers/auth";
 
 dotenv.config();
 
-
+const allowedOrigins = [
+  'http://localhost:5733',   //user frontend
+  "http://localhost:5732",   //admin frontend
+];
 const app=express();
 const PORT=process.env.PORT;
 app.use(
     cors({
-      origin: "http://localhost:5732", 
+      origin: allowedOrigins, 
       credentials: true,               
     })
   );
