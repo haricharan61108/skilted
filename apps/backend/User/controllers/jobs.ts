@@ -68,3 +68,47 @@ export const getAllJobs = async (req: Request, res: Response):Promise<void>=> {
     });
     }
 }
+
+export const getJobById = async(req:Request,res:Response):Promise<void>=> {
+  try {
+    const {jobId}=req.params;
+
+    if (!jobId || isNaN(Number(jobId))) {
+     res.status(400).json({
+        success: false,
+        error: 'Valid job ID is required'
+      });
+      return;
+    }
+    const id = parseInt(jobId);
+    const job = await prisma.job.findUnique({
+      where : {id},
+      include: {
+        admin: {
+          select: {
+            email: true,
+          }
+        }
+      }
+    })
+
+    if (!job) {
+       res.status(404).json({
+        success: false,
+        error: 'Job not found'
+      });
+      return ;
+    }
+    
+    res.status(200).json({
+      job
+    })
+
+  } catch (error) {
+    console.error('Error fetching job details:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
