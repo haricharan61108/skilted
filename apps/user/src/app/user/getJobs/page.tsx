@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Clock, DollarSign, MapPin, Search, Heart, Calendar, Briefcase, Star, Users } from "lucide-react"
 import api from "@/config"
+import { useRouter } from "next/navigation"
 
 interface Job {
   id: string
@@ -22,6 +23,7 @@ interface Job {
 }
 
 export default function BrowseJobs() {
+  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -65,7 +67,10 @@ export default function BrowseJobs() {
       return newSaved
     })
   }
-
+  
+  const handleApplyJob = (jobId:string) => {
+      router.push(`/user/job/${jobId}`)
+  }
   const getExperienceBadgeColor = (level: string | null) => {
     if (!level) {
         return "bg-gray-100 text-gray-700 hover:bg-gray-200"; 
@@ -304,9 +309,11 @@ export default function BrowseJobs() {
                           <MapPin className="w-4 h-4" />
                           <span>Remote</span>
                         </div>
-                      </div>
+                      </div>  
 
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium shadow-lg">
+                      <Button onClick={()=> {
+                        handleApplyJob(job.id)
+                      }} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium shadow-lg">
                         Apply Now
                       </Button>
                     </div>

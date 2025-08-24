@@ -27,6 +27,18 @@ import {
 } from "lucide-react"
 import Navbar from "@/components/navbar"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import api from "@/config"
 
 
@@ -62,7 +74,11 @@ export default function JobDetailsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaved, setIsSaved] = useState(false)
   const [showFullDescription, setShowFullDescription] = useState(false)
-
+  const [showApplyModal, setShowApplyModal] = useState(false)
+  const [bidAmount, setBidAmount] = useState("")
+  const [useBaseBidding, setUseBaseBidding] = useState(false)
+  const [comments, setComments] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const id = params.id as string
 
   useEffect(() => {
@@ -128,8 +144,45 @@ export default function JobDetailsPage() {
 
   const handleApplyJob = () => {
     if (!job) return
-    toast.success("Redirecting to application form...")
-    router.push(`/user/getJobs/${job.id}/apply`)
+    setShowApplyModal(true)
+  }
+
+  const handleSubmitApplication = async () => {
+    if (!job) return
+
+    setIsSubmitting(true)
+    try {
+      // TODO: Replace with actual API call
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      const applicationData = {
+        jobId: job.id,
+        bidAmount: useBaseBidding ? job.baseBiddingPrice : Number.parseFloat(bidAmount),
+        comments: comments.trim(),
+        useBaseBidding,
+      }
+
+      console.log("Application submitted:", applicationData)
+      toast.success("Application submitted successfully!")
+      setShowApplyModal(false)
+
+      // Reset form
+      setBidAmount("")
+      setUseBaseBidding(false)
+      setComments("")
+    } catch (error) {
+      console.error("Error submitting application:", error)
+      toast.error("Failed to submit application. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+  const handleCloseModal = () => {
+    setShowApplyModal(false)
+    setBidAmount("")
+    setUseBaseBidding(false)
+    setComments("")
   }
 
   const handleShareJob = () => {
@@ -499,7 +552,126 @@ export default function JobDetailsPage() {
           </div>
         </div>
       </div>
+      
+         {/* Apply Job Modal */}
+         <Dialog open={showApplyModal} onOpenChange={setShowApplyModal}>
+          <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+            <DialogHeader className="space-y-3">
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                Apply for this Job
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Submit your proposal for "{job?.title}". Make sure to provide competitive pricing and detailed comments
+                about your approach.
+              </DialogDescription>
+            </DialogHeader>
 
+            <div className="space-y-6 py-4">
+              {/* Bid Amount Section */}
+              <div className="space-y-3">
+                <Label htmlFor="bidAmount" className="text-sm font-semibold text-gray-700">
+                  Your Bid Amount
+                </Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                    $
+                  </span>
+                  <Input
+                    id="bidAmount"
+                    type="number"
+                    placeholder="Enter your bid"
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                    disabled={useBaseBidding}
+                    className="pl-8 h-12 text-lg font-semibold border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                {/* Same as Base Bidding Price Checkbox */}
+                <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                  <Checkbox
+                    id="useBaseBidding"
+                    checked={useBaseBidding}
+                    onCheckedChange={(checked)=>setUseBaseBidding(checked === true)}
+                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="useBaseBidding" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Same as base bidding price
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Use the project's base price of {job ? formatCurrency(job.baseBiddingPrice) : "$0"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Comments Section */}
+              <div className="space-y-3">
+                <Label htmlFor="comments" className="text-sm font-semibold text-gray-700">
+                  Cover Letter & Approach
+                </Label>
+                <Textarea
+                  id="comments"
+                  placeholder="Explain your approach, relevant experience, timeline, and why you're the best fit for this project..."
+                  value={comments}
+                  onChange={(e) => setComments(e.target.value)}
+                  className="min-h-32 resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  maxLength={1000}
+                />
+                <div className="flex justify-between items-center text-xs text-gray-500">
+                  <span>Be specific about your experience and approach</span>
+                  <span>{comments.length}/1000</span>
+                </div>
+              </div>
+
+              {/* Bid Summary */}
+              {bidAmount && (
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Your Bid:</span>
+                    <span className="text-lg font-bold text-green-700">
+                      {formatCurrency(Number.parseFloat(bidAmount) || 0)}
+                    </span>
+                  </div>
+                  {job && Number.parseFloat(bidAmount) !== job.baseBiddingPrice && (
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-500">Base Price:</span>
+                      <span className="text-xs text-gray-500">{formatCurrency(job.baseBiddingPrice)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="outline"
+                onClick={handleCloseModal}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto bg-transparent"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmitApplication}
+                disabled={isSubmitting || !bidAmount || !comments.trim()}
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       <style jsx>{`
         @keyframes blob {
           0% {

@@ -68,6 +68,18 @@ const jobCategories = [
   "DevOps & Deployment",
 ]
 
+const defaultCategoryImages: Record<string, string> = {
+  "Web Development": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755948955/Web-development_wtrmzq.jpg",
+  "Mobile App Development": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755930391/App-development_npt4fb.jpg",
+  "UI/UX Design": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755943193/ui-ux_rubywt.jpg",
+  "E-commerce Development": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755930790/e-commerce_yo5uku.jpg",
+  "WordPress Development": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755930885/wordpress_nkd7uh.jpg",
+  "API Development": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755949141/Api-deployement_saq31z.png",
+  "Database Design": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755930631/Database-Design_xjpxsy.jpg",
+  "DevOps & Deployment": "https://res.cloudinary.com/dw2qamkjb/image/upload/v1756030946/Devops_hqbota.jpg",
+};
+
+
 export default function AddJobPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([])
@@ -124,6 +136,8 @@ export default function AddJobPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const finalImage = imagePreview || defaultCategoryImages[formData.category] || "https://res.cloudinary.com/dw2qamkjb/image/upload/v1755930671/default_qdjbcm.jpg";
+      console.log("Image url is ", finalImage);
       const response = await axios.post(`${BACKEND_URL}/api/admin/add-job`, {
         title: formData.title,
         description: formData.description,
@@ -134,7 +148,7 @@ export default function AddJobPage() {
         deadline: formData.deadline,
         experienceLevel: formData.experienceLevel,
         technologies: selectedTechnologies,
-        image: imagePreview,
+        image: finalImage,
       }, {
         headers: {
           "Content-Type": "application/json",
