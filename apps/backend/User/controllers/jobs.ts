@@ -8,6 +8,7 @@ export const placeBid=async(req:Request,res:Response):Promise<void>=> {
         const userId=(req as any).user.id;
         console.log("User Id is "+userId);
         const { bidAmount } = req.body;
+        const {comment} =req.body;
 
         if(!bidAmount) {
             res.status(400).json({ msg: "Bid amount is required"});
@@ -17,17 +18,19 @@ export const placeBid=async(req:Request,res:Response):Promise<void>=> {
         const job = await prisma.job.findUnique({
             where: { id: Number(jobId) },
           });
-      
-          if (!job || !job.isBiddingEnabled) {
+         console.log("Job is ",job);
+          if (!job || job.isBiddingEnabled===false) {
             res.status(400).json({ msg: "Job is not bidding enabled" });
             return;
           }
+
 
           const bid = await prisma.bid.create({
             data: {
               jobId: Number(jobId),
               userId: Number(userId),
               bidAmount: Number(bidAmount),
+              comments: comment
             },
           });
 

@@ -152,15 +152,12 @@ export default function JobDetailsPage() {
 
     setIsSubmitting(true)
     try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
+      //here goes api call
       const applicationData = {
-        jobId: job.id,
-        bidAmount: useBaseBidding ? job.baseBiddingPrice : Number.parseFloat(bidAmount),
-        comments: comments.trim(),
-        useBaseBidding,
+        bidAmount : useBaseBidding ? job.baseBiddingPrice : Number.parseFloat(bidAmount),
+        comment : comments
       }
+      const res = await api.post(`/api/user/place-bid/${job.id}`,applicationData);
 
       console.log("Application submitted:", applicationData)
       toast.success("Application submitted successfully!")
@@ -170,9 +167,15 @@ export default function JobDetailsPage() {
       setBidAmount("")
       setUseBaseBidding(false)
       setComments("")
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error submitting application:", error)
-      toast.error("Failed to submit application. Please try again.")
+    if (error.response?.status === 400) {
+      toast.error(error.response.data?.msg || "Cannot place bid on this job");
+    } else if (error.response?.status === 401) {
+      toast.error("Please login to place a bid");
+    } else {
+      toast.error("Failed to place bid. Please try again.");
+    }
     } finally {
       setIsSubmitting(false)
     }

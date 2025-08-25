@@ -22,6 +22,7 @@ model Bid {
   userId    Int
   bidAmount Float
   createdAt DateTime @default(now())
+  comments  String?
 
   job       Job      @relation(fields: [jobId], references: [id])
   user      User     @relation(fields: [userId], references: [id])

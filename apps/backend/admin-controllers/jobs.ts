@@ -39,7 +39,7 @@ export const setJobs = async (req: Request, res: Response): Promise<void> => {
         description,
         image: image || null,
         baseBiddingPrice: parseFloat(baseBiddingPrice),
-        isBiddingEnabled: isBiddingEnabled === "true",
+        isBiddingEnabled: Boolean(isBiddingEnabled),
         technologies: Array.isArray(technologies) ? technologies : [technologies],
         minimumRequirements: Array.isArray(minimumRequirements) 
           ? minimumRequirements 
