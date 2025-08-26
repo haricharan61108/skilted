@@ -170,3 +170,41 @@ export const getJobById=async(req:Request,res:Response):Promise<void>=> {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+export const getJobsByAdmin = async(req:Request,res:Response):Promise<void>=> {
+  try {
+    const adminId = (req as any).admin.id;
+
+    if(!adminId) {
+      res.status(401).json({
+        success: false,
+        error: "Unauthorized: admin ID missing",
+      });
+      return;
+    }
+
+    const jobs = await prisma.job.findMany({
+      where : { adminId : Number(adminId)},
+      include: {
+        _count: {
+          select: {
+            bids: true, 
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc" 
+      },
+    });
+
+    res.status(200).json({
+      jobs
+    })
+  } catch (error) {
+    console.error("Error fetching admin jobs:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+}

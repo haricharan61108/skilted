@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { signup,login, checkEmail } from "../admin-controllers/auth";
 import { adminMiddleware } from "../middleware/adminMiddleware";
-import { getJobById, setJobs } from "../admin-controllers/jobs";
+import { getJobById, getJobsByAdmin, setJobs } from "../admin-controllers/jobs";
 import {enableBidding} from "../admin-controllers/jobs";
 import { getBidsByJobId } from "../admin-controllers/jobs";
 import { getUsersBySkill, getUsersForAdmin, searchUsersForAdmin} from "../common-controllers/getUsersBySkill";
@@ -20,5 +20,6 @@ router.get("/get-job/:id",adminMiddleware,getJobById);
 router.get("/get-users",adminMiddleware,getUsersForAdmin);
 router.get("/users/search",adminMiddleware,searchUsersForAdmin);
 router.get("/check-email",checkEmail)
+router.get("/get-jobsByAdmin",adminMiddleware,getJobsByAdmin);
 
 export default router;
