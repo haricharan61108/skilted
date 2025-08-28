@@ -416,13 +416,13 @@ export default function AdminJobsPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                          <Link href={`/jobs/${job.id}`}>
+                          <Link href={`/admin/getApplications/${job.id}`}>
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/jobs/${job.id}/applications`}>
+                          <Link href={`/admin/getApplications/${job.id}`}>
                             <Users className="w-4 h-4 mr-2" />
                             View Applications ({job._count.bids})
                           </Link>

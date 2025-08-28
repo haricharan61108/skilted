@@ -769,7 +769,7 @@ export default function JobApplicationsPage() {
                     <AvatarFallback className="text-xl font-semibold">
                       {selectedApplication.profile.name
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n:any) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
@@ -882,7 +882,7 @@ export default function JobApplicationsPage() {
                       </CardHeader>
                       <CardContent>
                         <div className="flex flex-wrap gap-2">
-                          {selectedApplication.profile.skills.map((skill) => (
+                          {selectedApplication.profile.skills.map((skill:any) => (
                             <Badge key={skill} className="bg-purple-100 text-purple-800 hover:bg-purple-200">
                               {skill}
                             </Badge>
@@ -896,7 +896,7 @@ export default function JobApplicationsPage() {
                       </CardHeader>
                       <CardContent>
                         <div className="flex flex-wrap gap-2">
-                          {selectedApplication.profile.languages.map((language) => (
+                          {selectedApplication.profile.languages.map((language:any) => (
                             <Badge key={language} variant="outline">
                               {language}
                             </Badge>
@@ -921,7 +921,7 @@ export default function JobApplicationsPage() {
                       </CardHeader>
                       <CardContent>
                         <ul className="space-y-2">
-                          {selectedApplication.profile.certifications.map((cert, index) => (
+                          {selectedApplication.profile.certifications.map((cert:any, index:any) => (
                             <li key={index} className="flex items-center space-x-2">
                               <Award className="w-4 h-4 text-yellow-600" />
                               <span className="text-gray-700">{cert}</span>
