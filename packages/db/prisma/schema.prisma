@@ -33,6 +33,7 @@ model Admin {
   email    String   @unique
   password String
   jobs     Job[]
+  chats    Chat[]
 }
 
 model Job {
@@ -52,7 +53,6 @@ model Job {
   updatedAt           DateTime  @updatedAt
   adminId             Int
   admin               Admin     @relation(fields: [adminId], references: [id])
-  chats               Chat[]
 }
 model User {
   id       Int       @id @default(autoincrement())
@@ -60,6 +60,7 @@ model User {
   password String
   bids     Bid[]
   profile  UserProfile?
+  chats    Chat[]
 }
 
 model UserProfile {
@@ -84,15 +85,15 @@ model UserProfile {
 
 model Chat {
   id       Int @id @default(autoincrement())
-  jobId    Int
-  job      Job @relation(fields: [jobId],references: [id])
   adminId  Int
   userId   Int
   messages Message[]
   createdAt DateTime @default(now())
   updatedAt DateTime  @updatedAt
 
-  @@index([jobId,adminId,userId])
+  admin     Admin     @relation(fields: [adminId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  @@unique([adminId, userId])
 }
 
 model Message {
