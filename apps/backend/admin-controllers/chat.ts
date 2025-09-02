@@ -86,3 +86,54 @@ export const sendAdminMessage = async(req:Request,res:Response):Promise<void>=> 
        res.status(500).json({ success: false, error: "Internal server error" });
     }
 }
+
+export const getOrCreateAdminChat = async(req:Request,res:Response) : Promise<void> => {
+  try {
+    const adminId = (req as any).admin.id;
+    const { userId } = req.params;
+    if (!adminId) {
+      res.status(401).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
+    if (!userId) {
+      res.status(400).json({ success: false, error: "User ID is required" });
+      return;
+    }
+
+    let chat = await prisma.chat.findUnique({
+      where: {
+        adminId_userId: {
+          adminId:adminId,
+          userId:Number(userId)
+        },
+      },
+      include : {
+        user: { include: { profile: true } },
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1, 
+        },
+      },
+    });
+    if (!chat) {
+      chat = await prisma.chat.create({
+        data: {
+          adminId: Number(adminId),
+          userId: Number(userId),
+        },
+        include: {
+          user: { include: { profile: true } },
+          messages: true,
+        },
+      });
+    }
+
+    res.status(200).json({
+      chat
+    });
+  } catch (error) {
+    console.error("Error getting/creating chat:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+}
