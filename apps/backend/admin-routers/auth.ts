@@ -6,7 +6,8 @@ import {enableBidding} from "../admin-controllers/jobs";
 import { getBidsByJobId } from "../admin-controllers/jobs";
 import { getUsersBySkill, getUsersForAdmin, searchUsersForAdmin} from "../common-controllers/getUsersBySkill";
 import { limiter } from "../middleware/rateLimiter";
-import { createOrGetChat, getChatMessages } from "../admin-controllers/chat";
+import { getOrCreateAdminChat, sendAdminMessage } from "../admin-controllers/chat";
+
 
 const router=Router();
 
@@ -25,7 +26,8 @@ router.get("/get-jobsByAdmin",adminMiddleware,getJobsByAdmin);
 
 
 //chat routers
-router.post("/create-chat",adminMiddleware,createOrGetChat);
-router.get("/get-chat/:chatId",adminMiddleware,getChatMessages);
+router.post("/create-chat/:userId",adminMiddleware,getOrCreateAdminChat);
+// router.get("/get-chat/:chatId",adminMiddleware,getChatMessages);
+router.post("/send-message/:chatId",adminMiddleware,sendAdminMessage);
 
 export default router;
