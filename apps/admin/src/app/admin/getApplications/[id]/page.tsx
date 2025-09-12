@@ -104,7 +104,13 @@ export default function JobApplicationsPage() {
     if (jobId) {
       fetchApplications()
     }
-  }, [jobId])
+  }, [jobId]) 
+  
+  const handleMessage = (userId:number)=> {
+    return()=> {
+      router.push(`/admin/chat/${userId}`);
+    };
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -525,7 +531,7 @@ export default function JobApplicationsPage() {
                       <Eye className="w-4 h-4 mr-1" />
                       View Details
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={handleMessage(bid.user.id)}>
                       <MessageSquare className="w-4 h-4 mr-1" />
                       Message
                     </Button>

@@ -470,6 +470,43 @@ export default function AdminJobsPage() {
                     </div>
                   </div>
 
+                  {/* Add Enable Bidding Button */}
+                  <div className="flex items-center justify-center pt-2">
+                    <Button
+                      size="sm"
+                      onClick={async() => {
+                        try {
+                          const response = await axios.post(`${BACKEND_URL}/api/admin/toggle-bidding/${job.id}`,{
+
+                          },{
+                            withCredentials:true
+                          });
+                          if (response.data.success) {
+                            // Update local state with the actual server response
+                            const updatedJobs = jobs.map((j) =>
+                              j.id === job.id ? { ...j, isBiddingEnabled: response.data.job.isBiddingEnabled } : j
+                            );
+                            setJobs(updatedJobs);
+                            
+                            toast.success(response.data.message);
+                          } else {
+                            toast.error("Failed to toggle bidding status");
+                          }
+                        } catch (error) {
+                          console.error("Error toggling bidding:", error);
+                        }
+                      }}
+                      className={`${
+                        job.isBiddingEnabled
+                          ? "bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white"
+                          : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                      } transition-all duration-300 shadow-lg hover:shadow-xl`}
+                    >
+                      {job.isBiddingEnabled ? "Disable Bidding" : "Enable Bidding"}
+                    </Button>
+                  </div>
+
+
                   {job.technologies.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {job.technologies.slice(0, 3).map((tech) => (

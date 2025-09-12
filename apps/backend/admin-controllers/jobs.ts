@@ -62,7 +62,7 @@ export const setJobs = async (req: Request, res: Response): Promise<void> => {
 export const enableBidding=async(req:Request,res:Response): Promise<void> =>{
   try {
     const adminId = (req as any).admin.id;
-    const jobId=req.params.jobId;
+    const { jobId } = req.params;
 
     if (!adminId) {
       res.status(401).json({ msg: "Unauthorized. Admin ID missing." });
@@ -81,14 +81,17 @@ export const enableBidding=async(req:Request,res:Response): Promise<void> =>{
       res.status(403).json({ msg: "Forbidden. You are not authorized to enable bidding on this job." });
       return;
     }
-   
     const updatedJob=await prisma.job.update({
       where: {id:Number(jobId)},
       data: {
-        isBiddingEnabled:true
+        isBiddingEnabled:!job.isBiddingEnabled
       }
     });
-    res.status(200).json({ msg: "Job Bidding Enabled", job: updatedJob });
+    res.status(200).json({
+      success: true,
+      message: `Bidding ${updatedJob.isBiddingEnabled ? 'enabled' : 'disabled'} successfully`,
+      job: updatedJob
+    });
 
   } catch (error) {
     console.error("Enable bidding error:", error);

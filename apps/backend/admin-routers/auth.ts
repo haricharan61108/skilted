@@ -15,7 +15,7 @@ const router=Router();
 router.post("/signup",signup);
 router.post("/login",login);
 router.post("/add-job",adminMiddleware,limiter,setJobs);
-router.post("/enable-bidding/:jobId",adminMiddleware,enableBidding);
+router.post("/toggle-bidding/:jobId",adminMiddleware,enableBidding);
 router.get("/get-bids/:jobId",adminMiddleware,getBidsByJobId);
 router.get("/search-skills",adminMiddleware,getUsersBySkill);
 router.get("/get-job/:id",adminMiddleware,getJobById);
