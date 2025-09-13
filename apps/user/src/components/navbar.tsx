@@ -52,7 +52,7 @@ export default function Navbar() {
     },
     {
       name: "Messages",
-      href: "/messages",
+      href: "/user/messages",
       icon: MessageSquare,
     },
     {

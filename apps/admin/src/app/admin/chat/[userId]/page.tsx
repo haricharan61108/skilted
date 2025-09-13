@@ -121,7 +121,7 @@ export default function AdminChatPage() {
       setMessages((prev) => prev.map((msg) => 
         msg.id === tempMessage.id ? {
           ...savedMessage,
-          sender: "admin" // Ensure sender type matches
+          sender: "admin" 
         } : msg
       ));
   
@@ -130,9 +130,8 @@ export default function AdminChatPage() {
       console.error("Error sending message:", error)
       toast.error("Failed to send message")
 
-      // Remove failed message
       setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id))
-      setNewMessage(messageContent) // Restore message content
+      setNewMessage(messageContent) 
     } finally {
       setIsSending(false)
     }

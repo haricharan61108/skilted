@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 import adminRouter from "./admin-routers/auth"
 import userRouter from "./User/routers/auth";
+import http from "http";
+import {Server} from "socket.io";
 
 dotenv.config();
 
@@ -14,6 +16,8 @@ const allowedOrigins = [
   "http://localhost:5732",   //admin frontend
 ];
 const app=express();
+const server=http.createServer(app);
+const io=new Server(server);
 const PORT=process.env.PORT;
 app.use(
     cors({
@@ -31,7 +35,7 @@ app.get("/", async(req, res) => {
 app.use("/api/admin",adminRouter);
 app.use("/api/user",userRouter);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
