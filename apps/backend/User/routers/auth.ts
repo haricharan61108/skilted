@@ -2,6 +2,7 @@ import { Router } from "express";
 import { signup,login } from "../controllers/auth";
 import { getAllJobs, getJobById, placeBid } from "../controllers/jobs";
 import { userMiddleware } from "../../middleware/userMiddleware";
+import { getUserChatMessages, getUserChats } from "../controllers/chat";
 // import { sendMessage } from "../controllers/chat";
 const router=Router();
 router.post("/signup",signup);
@@ -13,5 +14,7 @@ router.get("/get-jobId/:jobId",userMiddleware,getJobById);
 
 //chat controllers
 // router.post("/send-message",sendMessage)
+router.get("/get-chats",userMiddleware,getUserChats);
+router.get("/get-chat/:adminId",userMiddleware,getUserChatMessages)
 
 export default router;

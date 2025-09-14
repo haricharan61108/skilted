@@ -20,8 +20,8 @@ export const getUserChats = async (req: Request, res: Response): Promise<void> =
             take: 1, 
           },
         },
+        orderBy: {updatedAt: "desc"}
       });
-  
       res.status(200).json({ success: true, chats });
     } catch (error) {
       console.error("Error fetching user chats:", error);
@@ -49,9 +49,25 @@ export const getUserChats = async (req: Request, res: Response): Promise<void> =
             adminId: Number(adminId),
             userId: Number(userId)
           },
+        },
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: "asc"
+            }
+          },
+          admin : {
+            select: {
+              id:true,
+              email:true
+            }
+          }
         }
       })
-      
+      if (!chat) {
+        res.status(404).json({ success: false, error: "Chat not found" });
+        return;
+      }
       res.status(200).json({chat });
 
 
