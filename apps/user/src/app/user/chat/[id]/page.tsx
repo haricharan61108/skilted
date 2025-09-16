@@ -128,20 +128,15 @@ export default function UserChatPage() {
       // })
 
       // Mock sending message
-      const mockMessage: Message = {
-        id: Date.now(),
-        content: newMessage,
-        senderId: 1, // Current user ID
-        senderType: "user",
-        createdAt: new Date().toISOString(),
-        isRead: false,
-      }
-
+      const res = await api.post(`/api/user/send-message/${adminId}`,{
+        content: newMessage
+      });
+      const sentMessage = res.data.message;
       setChat((prev) =>
         prev
           ? {
               ...prev,
-              messages: [...prev.messages, mockMessage],
+              messages: [...prev.messages, sentMessage],
             }
           : null,
       )
