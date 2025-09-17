@@ -17,7 +17,12 @@ const allowedOrigins = [
 ];
 const app=express();
 const server=http.createServer(app);
-const io=new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
 const PORT=process.env.PORT;
 app.use(
     cors({
@@ -34,6 +39,20 @@ app.get("/", async(req, res) => {
 
 app.use("/api/admin",adminRouter);
 app.use("/api/user",userRouter);
+
+io.on("connection",(socket)=> {
+  console.log("a user connected",socket.id);
+
+  socket.on("join",({chatId,senderId,senderType})=> {
+    socket.join(`chat-${chatId}`);
+    console.log(`${senderType} ${senderId} joined chat ${chatId}`);
+  })
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+
+})
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
