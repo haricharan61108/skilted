@@ -12,6 +12,7 @@ import { ArrowLeft, Send, Clock, CheckCircle2 } from "lucide-react"
 import Navbar from "@/components/navbar"
 import { toast } from "sonner"
 import api from "@/config"
+import { io, Socket } from "socket.io-client";
 
 interface Message {
   id: number
@@ -45,7 +46,38 @@ export default function UserChatPage() {
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const [socket ,setSocket] = useState<Socket | null>(null);
+
   const adminId = params.id as string
+
+  //initialise socket connection
+  useEffect(()=> {
+    const token = localStorage.getItem('userToken') || '';
+    const newSocket = io('http://localhost:3000',{
+      auth: { token }
+    });
+    newSocket.on('connect', () => console.log('Connected to WebSocket'));
+    newSocket.on('disconnect', () => console.log('Disconnected'));
+    newSocket.on('error', (error) => toast.error('Connection error'));
+
+    setSocket(newSocket);
+
+    return () => { newSocket.disconnect(); };
+  },[]);
+
+  //Socket Message Handler
+  useEffect(()=> {
+    if(socket && chat) {
+      socket.emit('joinRoom',chat.id.toString());
+      socket.on('receiveMessage',(data:Message) => {
+        setChat(prev => {
+          if (!prev || prev.messages.some(msg => msg.id === data.id)) return prev;
+          return { ...prev, messages: [...prev.messages, data] };
+        });
+      });
+      return () => { socket.off('receiveMessage'); };
+    }
+  },[socket,chat]);
 
   useEffect(() => {
     const fetchChatMessages = async () => {
@@ -122,12 +154,12 @@ export default function UserChatPage() {
 
     try {
       setIsSending(true)
-      // TODO: Replace with actual API call
-      // const response = await api.post(`/api/user/chat/${adminId}/message`, {
-      //   content: newMessage
-      // })
-
-      // Mock sending message
+      socket?.emit('sendMessage',{
+        chatId: chat!.id.toString(),
+        senderId: Number(userId),
+        senderType: "user",
+        content: newMessage.trim()
+      })
       const res = await api.post(`/api/user/send-message/${adminId}`,{
         content: newMessage
       });
