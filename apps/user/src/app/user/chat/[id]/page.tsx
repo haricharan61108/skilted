@@ -45,6 +45,7 @@ export default function UserChatPage() {
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const userId=1;
 
   const [socket ,setSocket] = useState<Socket | null>(null);
 
@@ -52,7 +53,14 @@ export default function UserChatPage() {
 
   //initialise socket connection
   useEffect(()=> {
-    const token = localStorage.getItem('userToken') || '';
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+    
+    const token = getCookie('jwt') || ''; 
     const newSocket = io('http://localhost:3000',{
       auth: { token }
     });
@@ -78,6 +86,14 @@ export default function UserChatPage() {
       return () => { socket.off('receiveMessage'); };
     }
   },[socket,chat]);
+
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [socket]);
 
   useEffect(() => {
     const fetchChatMessages = async () => {
@@ -150,31 +166,25 @@ export default function UserChatPage() {
   }
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || isSending) return
+    if (!newMessage.trim() || isSending || !socket || !chat) return
 
     try {
-      setIsSending(true)
-      socket?.emit('sendMessage',{
-        chatId: chat!.id.toString(),
-        senderId: Number(userId),
-        senderType: "user",
-        content: newMessage.trim()
-      })
-      const res = await api.post(`/api/user/send-message/${adminId}`,{
-        content: newMessage
-      });
-      const sentMessage = res.data.message;
-      setChat((prev) =>
-        prev
-          ? {
-              ...prev,
-              messages: [...prev.messages, sentMessage],
-            }
-          : null,
-      )
+      setIsSending(true);
+    
+    // Send via WebSocket for real-time
+    socket.emit('sendMessage', {
+      chatId: chat.id.toString(),
+      senderId: userId,
+      senderType: "user",
+      content: newMessage.trim()
+    });
 
-      setNewMessage("")
-      toast.success("Message sent!")
+    await api.post(`/api/user/send-message/${adminId}`, {
+      content: newMessage.trim()
+    });
+
+    setNewMessage("");
+    toast.success("Message sent!");
     } catch (error) {
       console.error("Error sending message:", error)
       toast.error("Failed to send message")
@@ -191,21 +201,23 @@ export default function UserChatPage() {
   }
 
   const groupMessagesByDate = (messages: Message[] | undefined | null) => {
-    const groups: { [key: string]: Message[] } = {}
-    if (!messages || !Array.isArray(messages)) {
-        return groups
-      }
-
-    messages.forEach((message) => {
-      const date = formatDate(message.createdAt)
-      if (!groups[date]) {
-        groups[date] = []
-      }
-      groups[date].push(message)
-    })
-
-    return groups
+  const groups: { [key: string]: Message[] } = {}
+  
+  // Add better null/undefined checking
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return groups;
   }
+
+  messages.forEach((message) => {
+    const date = formatDate(message.createdAt)
+    if (!groups[date]) {
+      groups[date] = []
+    }
+    groups[date].push(message)
+  })
+
+  return groups
+}
   
   if (isLoading) {
     return (
@@ -301,31 +313,38 @@ export default function UserChatPage() {
                   </div>
 
                   {/* Messages for this date */}
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.senderType === "user" ? "justify-end" : "justify-start"} mb-4`}
-                    >
-                      <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.senderType === "user"
-                            ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
-                            : "bg-gray-100 text-gray-900"
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                        <div
-                          className={`flex items-center justify-end mt-1 space-x-1 text-xs ${
-                            message.senderType === "user" ? "text-blue-100" : "text-gray-500"
-                          }`}
-                        >
-                          <Clock className="w-3 h-3" />
-                          <span>{formatTime(message.createdAt)}</span>
-                          {message.senderType === "user" && message.isRead && <CheckCircle2 className="w-3 h-3" />}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {messages && messages.length > 0 ? (
+  messages.map((message) => (
+    <div
+      key={`${message.id}-${message.createdAt}`}
+      className={`flex ${message.senderType === "user" ? "justify-end" : "justify-start"} mb-4`}
+    >
+      <div
+        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+          message.senderType === "user"
+            ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
+            : "bg-gray-100 text-gray-900"
+        }`}
+      >
+        <p className="text-sm">{message.content}</p>
+        <div
+          className={`flex items-center justify-end mt-1 space-x-1 text-xs ${
+            message.senderType === "user" ? "text-blue-100" : "text-gray-500"
+          }`}
+        >
+          <Clock className="w-3 h-3" />
+          <span>{formatTime(message.createdAt)}</span>
+          {message.senderType === "user" && message.isRead && <CheckCircle2 className="w-3 h-3" />}
+        </div>
+      </div>
+    </div>
+  ))
+) : (
+  <div className="text-center text-gray-500 py-4">
+    No messages in this conversation
+  </div>
+)}
+
                 </div>
               ))}
               <div ref={messagesEndRef} />

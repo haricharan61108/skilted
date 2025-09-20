@@ -13,6 +13,7 @@ import { ArrowLeft, Send, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { BACKEND_URL } from "config"
 import axios from "axios"
+import { io, Socket } from "socket.io-client";
 
 interface Message {
   id: string
@@ -31,6 +32,8 @@ export default function AdminChatPage() {
   const router = useRouter()
   const jobId = params.id as string
   const userId = params.userId as string
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const adminId = 1;
 
   const [messages, setMessages] = useState<Message[]>([])
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
@@ -44,6 +47,45 @@ export default function AdminChatPage() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
+
+  //initialise socket connection
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+  
+    const token = getCookie('jwt') || '';
+    const newSocket = io('http://localhost:3000', {
+      auth: { token }
+    });
+  
+    newSocket.on('connect', () => console.log('Connected to WebSocket'));
+    newSocket.on('disconnect', () => console.log('Disconnected'));
+    newSocket.on('error', (error) => toast.error('Connection error'));
+  
+    setSocket(newSocket);
+  
+    return () => { newSocket.disconnect(); };
+  }, []);
+
+  // Socket Message Handler
+useEffect(() => {
+  if (socket && chatId) {
+    socket.emit('joinRoom', chatId.toString());
+    
+    socket.on('receiveMessage', (data: Message) => {
+      setMessages(prev => {
+        if (!prev || prev.some(msg => msg.id === data.id)) return prev;
+        return [...prev, data];
+      });
+    });
+
+    return () => { socket.off('receiveMessage'); };
+  }
+}, [socket, chatId]);
 
   useEffect(() => {
     scrollToBottom()
@@ -88,15 +130,16 @@ export default function AdminChatPage() {
   }, [jobId, userId])
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || isSending) return
+    if (!newMessage.trim() || isSending || !socket || !chatId) return;
 
-    const messageContent = newMessage.trim()
-    setNewMessage("")
-    setIsSending(true)
+    const messageContent = newMessage.trim();
+    setNewMessage("");
+    setIsSending(true);
+  
 
     // Optimistic update
     const tempMessage: Message = {
-      id: `temp-${Date.now()}`,
+      id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // ✅ Unique ID
       sender: "admin",
       content: messageContent,
       createdAt: new Date().toISOString(),
@@ -105,9 +148,16 @@ export default function AdminChatPage() {
     setMessages((prev) => [...prev, tempMessage])
 
     try {
-      const cId = chatId;
+      socket.emit('sendMessage', {
+        chatId: chatId.toString(),
+        senderId: 1, // Replace with actual admin ID from your auth
+        senderType: "admin",
+        content: messageContent,
+        receiverId: parseInt(userId) // Send to the user
+      });
+
       const response = await axios.post(
-        `${BACKEND_URL}/api/admin/send-message/${cId}`,
+        `${BACKEND_URL}/api/admin/send-message/${chatId}`,
         { content: messageContent },
         {
           withCredentials: true,
@@ -116,12 +166,12 @@ export default function AdminChatPage() {
           }
         }
       );
+  
       const savedMessage = response.data.message;
-
       setMessages((prev) => prev.map((msg) => 
         msg.id === tempMessage.id ? {
           ...savedMessage,
-          sender: "admin" 
+          sender: "admin"
         } : msg
       ));
   
@@ -136,6 +186,14 @@ export default function AdminChatPage() {
       setIsSending(false)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [socket]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -211,9 +269,10 @@ export default function AdminChatPage() {
           <CardContent className="p-0">
             {/* Messages */}
             <div className="h-[60vh] overflow-y-auto p-6 space-y-4">
-              {messages.map((message) => (
+              {messages && messages.length>0 ?(
+              messages.map((message) => (
                 <div
-                  key={message.id}
+                  key={`${message.id}-${message.createdAt}`}
                   className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
                 >
                   <div
@@ -229,7 +288,12 @@ export default function AdminChatPage() {
                     </p>
                   </div>
                 </div>
-              ))}
+              ))
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                No messages yet. Start the conversation!
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
