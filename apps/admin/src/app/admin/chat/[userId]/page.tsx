@@ -79,7 +79,7 @@ useEffect(() => {
     socket.on('receiveMessage', (data: Message) => {
       setMessages(prev => {
         if (!prev || prev.some(msg => msg.id === data.id)) return prev;
-        return [...prev, data];
+        return [...prev, { ...data, createdAt: data.createdAt || new Date().toISOString() }]; 
       });
     });
 
@@ -150,10 +150,10 @@ useEffect(() => {
     try {
       socket.emit('sendMessage', {
         chatId: chatId.toString(),
-        senderId: 1, // Replace with actual admin ID from your auth
+        senderId: 1, 
         senderType: "admin",
         content: messageContent,
-        receiverId: parseInt(userId) // Send to the user
+        receiverId: parseInt(userId)
       });
 
       const response = await axios.post(
@@ -203,11 +203,14 @@ useEffect(() => {
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
+  
 
   if (isLoading) {
     return (

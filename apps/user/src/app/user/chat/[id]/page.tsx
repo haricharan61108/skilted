@@ -80,8 +80,12 @@ export default function UserChatPage() {
       socket.on('receiveMessage',(data:Message) => {
         setChat(prev => {
           if (!prev || prev.messages.some(msg => msg.id === data.id)) return prev;
-          return { ...prev, messages: [...prev.messages, data] };
+          return {
+            ...prev,
+            messages: [...prev.messages, { ...data, createdAt: data.createdAt || new Date().toISOString() }]
+          };
         });
+        
       });
       return () => { socket.off('receiveMessage'); };
     }
@@ -123,11 +127,14 @@ export default function UserChatPage() {
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -176,7 +183,8 @@ export default function UserChatPage() {
       chatId: chat.id.toString(),
       senderId: userId,
       senderType: "user",
-      content: newMessage.trim()
+      content: newMessage.trim(),
+      createdAt: new Date().toISOString()
     });
 
     await api.post(`/api/user/send-message/${adminId}`, {
