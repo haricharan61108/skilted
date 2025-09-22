@@ -187,9 +187,9 @@ export default function UserChatPage() {
       createdAt: new Date().toISOString()
     });
 
-    await api.post(`/api/user/send-message/${adminId}`, {
-      content: newMessage.trim()
-    });
+    // await api.post(`/api/user/send-message/${adminId}`, {
+    //   content: newMessage.trim()
+    // });
 
     setNewMessage("");
     toast.success("Message sent!");

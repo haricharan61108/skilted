@@ -156,24 +156,24 @@ useEffect(() => {
         receiverId: parseInt(userId)
       });
 
-      const response = await axios.post(
-        `${BACKEND_URL}/api/admin/send-message/${chatId}`,
-        { content: messageContent },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      // const response = await axios.post(
+      //   `${BACKEND_URL}/api/admin/send-message/${chatId}`,
+      //   { content: messageContent },
+      //   {
+      //     withCredentials: true,
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     }
+      //   }
+      // );
   
-      const savedMessage = response.data.message;
-      setMessages((prev) => prev.map((msg) => 
-        msg.id === tempMessage.id ? {
-          ...savedMessage,
-          sender: "admin"
-        } : msg
-      ));
+      // const savedMessage = response.data.message;
+      // setMessages((prev) => prev.map((msg) => 
+      //   msg.id === tempMessage.id ? {
+      //     ...savedMessage,
+      //     sender: "admin"
+      //   } : msg
+      // ));
   
       toast.success("Message sent");
     } catch (error) {

@@ -47,8 +47,22 @@ io.on("connection", (socket) => {
     console.log(`Socket ${socket.id} joined room ${chatId}`);
   });
   
-  socket.on("sendMessage", (data: { chatId: string; senderId: number; senderType: string; content: string }) => {
-    io.to(data.chatId).emit("receiveMessage", data);
+  socket.on("sendMessage", async(data: { chatId: string; senderId: number; senderType: string; content: string }) => {
+    try {
+      const savedMessage = await prisma.message.create({
+        data: {
+          chatId: parseInt(data.chatId),
+         senderId: data.senderId,
+         senderType: data.senderType,
+         content: data.content,
+        }
+      })
+
+      io.to(data.chatId).emit("receiveMessage", savedMessage);
+    } catch (error) {
+      console.error("Error saving message:", error);
+      socket.emit("errorMessage", "Message could not be saved");
+    }
   });
 
   socket.on("disconnect", () => {
