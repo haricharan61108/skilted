@@ -17,7 +17,7 @@ import { io, Socket } from "socket.io-client";
 
 interface Message {
   id: string
-  sender: "admin" | "user"
+  senderType: "admin" | "user"
   content: string
   createdAt: string
 }
@@ -137,15 +137,15 @@ useEffect(() => {
     setIsSending(true);
   
 
-    // Optimistic update
-    const tempMessage: Message = {
-      id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // ✅ Unique ID
-      sender: "admin",
-      content: messageContent,
-      createdAt: new Date().toISOString(),
-    }
+    // // Optimistic update
+    // const tempMessage: Message = {
+    //   id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // ✅ Unique ID
+    //   sender: "admin",
+    //   content: messageContent,
+    //   createdAt: new Date().toISOString(),
+    // }
 
-    setMessages((prev) => [...prev, tempMessage])
+    // setMessages((prev) => [...prev, tempMessage])
 
     try {
       socket.emit('sendMessage', {
@@ -180,7 +180,7 @@ useEffect(() => {
       console.error("Error sending message:", error)
       toast.error("Failed to send message")
 
-      setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id))
+      // setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id))
       setNewMessage(messageContent) 
     } finally {
       setIsSending(false)
@@ -276,17 +276,17 @@ useEffect(() => {
               messages.map((message) => (
                 <div
                   key={`${message.id}-${message.createdAt}`}
-                  className={`flex ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${message.senderType === "admin" ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={`max-w-[70%] rounded-2xl px-4 py-3 ${
-                      message.sender === "admin"
+                      message.senderType === "admin"
                         ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
                         : "bg-gray-100 text-gray-900"
                     }`}
                   >
                     <p className="text-sm leading-relaxed">{message.content}</p>
-                    <p className={`text-xs mt-1 ${message.sender === "admin" ? "text-white/70" : "text-gray-500"}`}>
+                    <p className={`text-xs mt-1 ${message.senderType === "admin" ? "text-white/70" : "text-gray-500"}`}>
                       {formatTime(message.createdAt)}
                     </p>
                   </div>
