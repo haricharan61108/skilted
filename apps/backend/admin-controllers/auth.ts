@@ -75,6 +75,20 @@ export const login=async (req: Request, res: Response):Promise<void>=>{
 }
 
 
+export const getAdminMe = async(req: Request, res: Response): Promise<void> => {
+  const admin = (req as any).admin; 
+
+  if (!admin) {
+     res.status(401).json({ message: "Not authenticated" });
+     return ;
+  }
+
+  res.json({ adminId: admin.id, email: admin.email });
+
+  return ;
+}
+
+
 //redis cache to check whether email is already taken
 export const checkEmail=async(req:Request,res:Response):Promise<void>=>{
   const email = (req.query.email as string)?.trim().toLowerCase();

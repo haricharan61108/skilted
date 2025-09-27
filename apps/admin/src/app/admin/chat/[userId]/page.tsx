@@ -14,6 +14,9 @@ import { toast } from "sonner"
 import { BACKEND_URL } from "config"
 import axios from "axios"
 import { io, Socket } from "socket.io-client";
+import { useAdmin } from "@/context/AuthContext"
+import { useSearchParams } from "next/navigation"
+
 
 interface Message {
   id: string
@@ -30,10 +33,11 @@ interface UserInfo {
 export default function AdminChatPage() {
   const params = useParams()
   const router = useRouter()
-  const jobId = params.id as string
   const userId = params.userId as string
   const [socket, setSocket] = useState<Socket | null>(null);
-  const adminId = 1;
+  const {admin} = useAdmin();
+  const searchParams = useSearchParams()
+  const jobId = searchParams.get("jobId")
 
   const [messages, setMessages] = useState<Message[]>([])
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
@@ -247,7 +251,7 @@ useEffect(() => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Link href={`/admin/jobs/${jobId}/applications`}>
+                <Link href={`/admin/getApplications/${jobId}`}>
                   <Button variant="ghost" size="icon">
                     <ArrowLeft className="w-4 h-4" />
                   </Button>

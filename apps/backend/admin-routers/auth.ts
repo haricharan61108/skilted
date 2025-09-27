@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup,login, checkEmail } from "../admin-controllers/auth";
+import { signup,login, checkEmail, getAdminMe } from "../admin-controllers/auth";
 import { adminMiddleware } from "../middleware/adminMiddleware";
 import { getJobById, getJobsByAdmin, setJobs } from "../admin-controllers/jobs";
 import {enableBidding} from "../admin-controllers/jobs";
@@ -23,6 +23,9 @@ router.get("/get-users",adminMiddleware,getUsersForAdmin);
 router.get("/users/search",adminMiddleware,searchUsersForAdmin);
 router.get("/check-email",checkEmail)
 router.get("/get-jobsByAdmin",adminMiddleware,getJobsByAdmin);
+
+
+router.get("/getAdminIdForFrontend",adminMiddleware,getAdminMe);
 
 
 //chat routers

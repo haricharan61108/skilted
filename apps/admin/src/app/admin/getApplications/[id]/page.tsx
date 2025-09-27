@@ -108,7 +108,7 @@ export default function JobApplicationsPage() {
   
   const handleMessage = (userId:number)=> {
     return()=> {
-      router.push(`/admin/chat/${userId}`);
+      router.push(`/admin/chat/${userId}?jobId=${jobId}`);
     };
   };
 

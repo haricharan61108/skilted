@@ -77,7 +77,7 @@ export default function UserLogin() {
 
       // Redirect after a short delay to show the success message
       setTimeout(() => {
-        router.push("/")
+        router.push("/user/getJobs")
       }, 1500)
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || error.message || "Login failed. Please try again."
