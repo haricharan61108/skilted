@@ -2,16 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import prisma from "db/client";
 import { generateToken } from "../utils/generateToken.ts";
-import Redis from "ioredis";
-
-const portno=Number(process.env.REDIS_PORT);
-const redis = new Redis({
-  host: "127.0.0.1",
-  port: portno
-});
-
-
-
+import {redis} from "../utils/redis.ts";
 
 export const signup=async (req: Request, res: Response):Promise<void>=>{
     try {
@@ -97,7 +88,7 @@ export const checkEmail=async(req:Request,res:Response):Promise<void>=>{
      return
 }
 
-  const cachedEmail = await redis.get(email);
+  const cachedEmail = await redis.get(`email:${email}`);
   if(cachedEmail!==null) {
      res.json({ available: cachedEmail === "true" });
      return;

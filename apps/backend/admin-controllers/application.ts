@@ -1,5 +1,5 @@
 import prisma from "db/client";
-import emailQueue from "../queues/emailQueue.ts"
+import { emailQueue } from "../workers/emailWorker";
 
 export const acceptApplication  = async(req,res) => {
     try {
