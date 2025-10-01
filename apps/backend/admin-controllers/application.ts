@@ -1,7 +1,8 @@
 import prisma from "db/client";
 import { emailQueue } from "../workers/emailWorker";
+import { Request, Response } from "express";
 
-export const acceptApplication  = async(req,res) => {
+export const acceptApplication  = async(req: Request, res: Response) :Promise<void>=> {
     try {
         const {applicationId} = req.body;
 

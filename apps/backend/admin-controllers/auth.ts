@@ -88,7 +88,7 @@ export const checkEmail=async(req:Request,res:Response):Promise<void>=>{
      return
 }
 
-  const cachedEmail = await redis.get(`email:${email}`);
+const cachedEmail = await redis.get(`email:${email}`);
   if(cachedEmail!==null) {
      res.json({ available: cachedEmail === "true" });
      return;
