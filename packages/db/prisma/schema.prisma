@@ -26,6 +26,9 @@ model Bid {
 
   job       Job      @relation(fields: [jobId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+
+  @@index([jobId])
+  @@index([userId])
 }
 
 model Admin {
@@ -53,6 +56,8 @@ model Job {
   updatedAt           DateTime  @updatedAt
   adminId             Int
   admin               Admin     @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
 }
 model User {
   id       Int       @id @default(autoincrement())
@@ -94,6 +99,9 @@ model Chat {
   admin     Admin     @relation(fields: [adminId], references: [id])
   user      User      @relation(fields: [userId], references: [id])
   @@unique([adminId, userId])
+
+  @@index([adminId])
+  @@index([userId])
 }
 
 model Message {
@@ -104,4 +112,6 @@ model Message {
   senderType String   @default("admin")
   content   String
   createdAt DateTime  @default(now())
+
+  @@index([chatId])
 }
