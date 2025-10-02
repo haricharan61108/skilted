@@ -319,9 +319,10 @@ export default function JobDetailsPage() {
 
               <Button
                 onClick={handleApplyJob}
+                disabled={!job.isBiddingEnabled}
                 className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
               >
-                Apply Now
+                {job.isBiddingEnabled ? "Apply Now" : "Bidding Disabled"}
               </Button>
             </div>
           </div>
@@ -523,9 +524,10 @@ export default function JobDetailsPage() {
               <CardContent className="space-y-3">
                 <Button
                   onClick={handleApplyJob}
+                  disabled={!job.isBiddingEnabled}
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                 >
-                  Apply for this Job
+                  {job.isBiddingEnabled ? "Apply for this Job" : "Bidding Disabled"}  
                 </Button>
 
                 <Button

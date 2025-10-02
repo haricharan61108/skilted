@@ -238,7 +238,7 @@ export default function AdminJobsPage() {
             <p className="text-gray-600">Manage and monitor all your posted jobs</p>
           </div>
           <div className="mt-4 lg:mt-0">
-            <Link href="/add-job">
+            <Link href="/admin/add-job">
               <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Post New Job
