@@ -306,9 +306,13 @@ export default function JobDetailsPage() {
               <Button
                 variant="outline"
                 onClick={handleSaveJob}
-                className={`${isSaved ? "bg-red-50 border-red-200 text-red-600" : ""}`}
+                className="bg-transparent"
               >
-                <Heart className={`w-4 h-4 mr-2 ${isSaved ? "fill-current" : ""}`} />
+                <Heart
+                  className={`w-4 h-4 mr-2 ${
+                    isSaved ? "fill-red-500 text-red-500" : ""
+                  }`}
+                />
                 {isSaved ? "Saved" : "Save Job"}
               </Button>
 
@@ -525,21 +529,29 @@ export default function JobDetailsPage() {
                 <Button
                   onClick={handleApplyJob}
                   disabled={!job.isBiddingEnabled}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  {job.isBiddingEnabled ? "Apply for this Job" : "Bidding Disabled"}  
+                  {job.isBiddingEnabled ? "Apply for this Job" : "Bidding Disabled"}
                 </Button>
 
                 <Button
                   variant="outline"
                   onClick={handleSaveJob}
-                  className={`w-full ${isSaved ? "bg-red-50 border-red-200 text-red-600" : ""}`}
+                  className="w-full bg-transparent"
                 >
-                  <Heart className={`w-4 h-4 mr-2 ${isSaved ? "fill-current" : ""}`} />
-                  {isSaved ? "Remove from Saved" : "Save for Later"}
+                  <Heart
+                    className={`w-4 h-4 mr-2 ${
+                      isSaved ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
+                  {isSaved ? "Saved" : "Save Job"}
                 </Button>
 
-                <Button variant="outline" onClick={handleShareJob} className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  onClick={handleShareJob}
+                  className="w-full bg-transparent"
+                >
                   <Share2 className="w-4 h-4 mr-2" />
                   Share Job
                 </Button>
@@ -547,7 +559,7 @@ export default function JobDetailsPage() {
                 <Button
                   variant="outline"
                   onClick={handleReportJob}
-                  className="w-full text-red-600 hover:text-red-700 bg-transparent"
+                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
                 >
                   <Flag className="w-4 h-4 mr-2" />
                   Report Job
