@@ -56,6 +56,7 @@ model Job {
   updatedAt           DateTime  @updatedAt
   adminId             Int
   admin               Admin     @relation(fields: [adminId], references: [id])
+  savedByUsers  SavedJob[]
 
   @@index([adminId])
 }
@@ -66,6 +67,8 @@ model User {
   bids     Bid[]
   profile  UserProfile?
   chats    Chat[]
+
+  savedJobs SavedJob[]
 }
 
 model UserProfile {
@@ -114,4 +117,17 @@ model Message {
   createdAt DateTime  @default(now())
 
   @@index([chatId])
+}
+
+model SavedJob {
+  userId  Int 
+  jobId   Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
 }
