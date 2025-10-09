@@ -56,3 +56,47 @@ export const unsaveJob=async(req:Request,res:Response):Promise<void>=> {
    }
 }
 
+export const getSavedJobStatus=async(req:Request,res:Response):Promise<void>=> {
+   try {
+    const userId=(req as any).user.id;
+    const {jobId} = req.params;
+    if(!userId) {
+        res.status(200).json({ isSaved: false });
+        return;
+    }
+    const savedJob = await prisma.savedJob.findUnique({
+        where : {
+            userId_jobId: {userId, jobId:Number(jobId)},
+        }
+    });
+
+     res.status(200).json({ isSaved: !!savedJob });
+     return ;
+   } catch (err) {
+    console.error("Error checking save status:", err);
+    res.status(500).json({ message: "Internal server error." });
+    return ;
+   }
+}
+
+
+export const getAllSavedJobs=async(req:Request,res:Response):Promise<void>=> {
+    try {
+        const userId=(req as any).user.id;
+        const savedJobs = await prisma.savedJob.findMany({
+            where: {
+                userId
+            },
+            include: {
+                job:true
+            }
+        })
+
+        res.status(200).json({ savedJobs });
+        return ;
+    } catch (err) {
+        console.error("Error fetching saved jobs:", err);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
+
