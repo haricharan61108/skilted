@@ -137,9 +137,34 @@ export default function JobDetailsPage() {
     }
   }
 
-  const handleSaveJob = () => {
+  const handleSaveJob = async() => {
+   if(!job) {
+    return ;
+   }
+   try {
+    if(isSaved) {
+      await api.delete(`/api/user/unsave-job/${id}`)
+      setIsSaved(false)
+      toast.success("Job removed from saved")
+    }
+    else {
+        await api.post(`/api/user/save-job/${id}`)
+        setIsSaved(true)
+        toast.success("Job saved successfully!")
+    }
+   } catch (error:any) {
+    console.error("Error saving/unsaving job:", error)
+    if (error.response?.status === 401) {
+      toast.error("Please login to save jobs")
+    } else if (error.response?.status === 409) {
+      toast.error("Job already saved")
+    } else if (error.response?.status === 404) {
+      toast.error("Job not found")
+    } else {
+      toast.error("Failed to save job")
+    }
     setIsSaved(!isSaved)
-    toast.success(isSaved ? "Job removed from saved" : "Job saved successfully!")
+   }
   }
 
   const handleApplyJob = () => {
