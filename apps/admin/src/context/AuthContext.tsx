@@ -11,13 +11,15 @@ interface Admin {
 interface AdminContextType {
     admin: Admin 
     setAdmin: (admin:Admin) => void
+    isLoading: boolean
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined)
 
 export const AdminProvider = ({children}: {children: ReactNode}) => {
     const [admin, setAdmin] = useState<Admin>({ adminId: null })
-
+    const [isLoading, setIsLoading] = useState(true)
+  
     useEffect(()=> {
         const fetchAdmin = async() => {
             try {
@@ -29,16 +31,24 @@ export const AdminProvider = ({children}: {children: ReactNode}) => {
 
                 console.log("Fetched admin:", res.data.adminId)
 
-            } catch (error) {
+            } catch (error:any) {
+              if (error.response?.status === 401) {
+                console.log("Admin not logged in - this is normal")
+                setAdmin({ adminId: null })
+              } else {
                 console.error("Failed to fetch admin:", error)
                 setAdmin({ adminId: null })
+              }
+            }
+            finally {
+              setIsLoading(false)
             }
         }
         fetchAdmin()
     },[])
 
     return (
-        <AdminContext.Provider value={{ admin, setAdmin }}>
+        <AdminContext.Provider value={{ admin, setAdmin , isLoading}}>
           {children}
         </AdminContext.Provider>
       )
