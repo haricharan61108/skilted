@@ -5,6 +5,7 @@ import { userMiddleware } from "../../middleware/userMiddleware";
 import { getUserChatMessages, getUserChats, sendUserMessage } from "../controllers/chat";
 import { getAllSavedJobs, getSavedJobStatus, saveJob, unsaveJob } from "../controllers/saveJob";
 
+//api/user
 const router=Router();
 router.post("/signup",signup);
 router.post("/login",login);

@@ -42,7 +42,7 @@ export default function Navbar() {
     },
     {
       name: "Browse Jobs",
-      href: "/jobs",
+      href: "/user/getJobs",
       icon: Search,
     },
     {
@@ -56,9 +56,9 @@ export default function Navbar() {
       icon: MessageSquare,
     },
     {
-      name: "Earnings",
-      href: "/earnings",
-      icon: Wallet,
+      name: "Saved Jobs",
+      href: "/user/saved-jobs",
+      icon: Heart,
     },
   ]
 
@@ -186,12 +186,6 @@ export default function Navbar() {
                   <Link href="/settings" className="flex items-center space-x-2">
                     <Settings className="w-4 h-4" />
                     <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/favorites" className="flex items-center space-x-2">
-                    <Heart className="w-4 h-4" />
-                    <span>Saved Jobs</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
