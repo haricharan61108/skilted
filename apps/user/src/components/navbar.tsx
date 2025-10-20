@@ -47,7 +47,7 @@ export default function Navbar() {
     },
     {
       name: "My Applications",
-      href: "/applications",
+      href: "/user/applications",
       icon: FileText,
     },
     {

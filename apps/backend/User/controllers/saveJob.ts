@@ -100,3 +100,57 @@ export const getAllSavedJobs=async(req:Request,res:Response):Promise<void>=> {
     }
 }
 
+//controller to get All applications of a user
+export const getAppliedJobs = async(req:Request,res:Response):Promise<void>=> {
+    try {
+        const userId=(req as any).user.id;
+        if(!userId) {
+            res.status(401).json({ message: "Authentication required." });
+            return ;
+          }
+        
+          const bids = await prisma.bid.findMany({
+            where: {
+                userId
+            },
+            include: {
+              job : {
+                include: {
+                    admin: {
+                        select: {
+                            email: true
+                        },
+                    },
+                },
+              },
+            },
+            orderBy : {
+                createdAt: "desc"
+            },
+          });
+
+          const appliedJobs = bids.map((bid) => ({
+            bidId: bid.id,
+            bidAmount: bid.bidAmount,
+            comments: bid.comments,
+            createdAt: bid.createdAt,
+            job: {
+              id: bid.job.id,
+              title: bid.job.title,
+              description: bid.job.description,
+              category: bid.job.category,
+              baseBiddingPrice: bid.job.baseBiddingPrice,
+              experienceLevel: bid.job.experienceLevel,
+              technologies: bid.job.technologies,
+              adminEmail: bid.job.admin?.email ?? null,
+            },
+          }));
+
+        res.status(200).json({ appliedJobs });
+
+    }
+    catch (err) {
+        console.error("Error fetching saved jobs:", err);
+        res.status(500).json({ message: "Internal server error." });
+    }
+}
