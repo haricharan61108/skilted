@@ -9,35 +9,55 @@ export const placeBid=async(req:Request,res:Response):Promise<void>=> {
         console.log("User Id is "+userId);
         const { bidAmount } = req.body;
         const {comment} =req.body;
-
-        if(!bidAmount) {
-            res.status(400).json({ msg: "Bid amount is required"});
-            return ;
-        }
         
-        const job = await prisma.job.findUnique({
-            where: { id: Number(jobId) },
-          });
-         console.log("Job is ",job);
-          if (!job || job.isBiddingEnabled===false) {
-            res.status(400).json({ msg: "Job is not bidding enabled" });
-            return;
+        if (!bidAmount) {
+          res.status(400).json({ msg: "Bid amount is required" });
+          return;
+        }
+
+        const job = await prisma.job.findUnique({ where: { id: Number(jobId) } });
+        if (!job || job.isBiddingEnabled === false) {
+          res.status(400).json({ msg: "Job is not bidding enabled or doesn't exist" });
+          return;
+        }
+
+        const existingBid = await prisma.bid.findUnique({
+          where: {
+            userId_jobId: {
+              userId,
+              jobId: Number(jobId)
+            },
           }
+        })
 
-
-          const bid = await prisma.bid.create({
+        if(existingBid) {
+          const updatedBid = await prisma.bid.update({
+            where: { userId_jobId: { userId, jobId: Number(jobId) } },
             data: {
-              jobId: Number(jobId),
-              userId: Number(userId),
               bidAmount: Number(bidAmount),
-              comments: comment
+              comments: comment || existingBid.comments,
             },
           });
-
-          res.status(200).json({ msg: "Bid Placed", bid });
-    } catch (error) {
-        console.error("Error placing bid:", error);
-    res.status(500).json({ msg: "Failed to place bid", error });
+          res.status(200).json({ msg: "Existing bid updated successfully", bid: updatedBid });
+          return ;
+        }
+          const newBid = await prisma.bid.create({
+            data: {
+              jobId: Number(jobId),
+              userId,
+              bidAmount:Number(bidAmount),
+              comments: comment || null,
+            }
+          })
+          res.status(201).json({ msg: "Bid placed successfully", bid: newBid });
+    } catch (error:any) {
+      if (error.code === "P2002") {
+        res.status(409).json({ msg: "You have already applied for this job" });
+        return;
+      }
+  
+      console.error("Error placing/updating bid:", error);
+      res.status(500).json({ msg: "Internal server error" });
     }
 }
 
