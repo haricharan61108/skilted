@@ -87,6 +87,8 @@ export default function JobDetailsPage() {
     const fetchJob = async () => {
       try {
         const res = await api.get(`/api/user/get-jobId/${id}`)
+        const status = await api.get(`/api/user/job-saved-status/${id}`)
+        setIsSaved(status.data.isSaved);
         setJob(res.data.job)
       } catch (error) {
         console.error("Error fetching job:", error)
