@@ -46,7 +46,7 @@ interface Job {
   category?: string
   deadline?: string
   experienceLevel?: string
-  bids: Bid[]
+  bids?: Bid[]
   createdAt: string
   updatedAt: string
   adminId: number
@@ -144,7 +144,7 @@ export default function AdminJobsPage() {
 
     let matchesStatus = true
     if (statusFilter !== "all") {
-      const hasAcceptedBid = job.bids.some((bid) => bid.status === "accepted")
+      const hasAcceptedBid = job.bids?.some((bid) => bid.status === "accepted") ?? false
       const deadline = job.deadline ? new Date(job.deadline) : null
       const now = new Date()
 
@@ -178,7 +178,7 @@ export default function AdminJobsPage() {
       case "price-low":
         return a.baseBiddingPrice - b.baseBiddingPrice
       case "bids-high":
-        return b.bids.length - a.bids.length
+        return (b.bids?.length ?? b._count.bids) - (a.bids?.length ?? a._count.bids)
       default:
         return 0
     }
